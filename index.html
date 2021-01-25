@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Multi-Client API Design</title>
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
@@ -16,8 +16,92 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section data-markdown>
+					## Multi-Client API Design
+					Jaco van den Bosch
+				</section>
+
+				<section data-markdown>
+					### Inhoud
+
+					- Het probleem
+					- Wat er nu wordt gebruikt
+					- Alternatief API design
+				</section>
+
+				<section data-markdown>
+					### Typische Setup
+
+					1 Backend met REST API, meerdere clients
+
+					- IOS
+					- Android
+					- Web
+				</section>
+
+				<section data-markdown>
+					<!-- Voeg een design toe van bijv 3 clients die communiceren met 1 server -->
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+						`GET /v1/customers/:id`
+
+						```json
+						{
+							"id": "cus_IobtN8vgw2VPVc",
+							"object": "customer",
+							"address": null,
+							"balance": 0,
+							"created": 1611456600,
+							"currency": "usd",
+							"default_source": null,
+							"delinquent": false,
+							"description": null,
+							"discount": null,
+							"email": null,
+							"invoice_prefix": "2D6DEB6",
+							"invoice_settings": {
+								"custom_fields": null,
+								"default_payment_method": null,
+								"footer": null
+							},
+							"livemode": false,
+							"metadata": {},
+							"name": null,
+							"next_invoice_sequence": 1,
+							"phone": null,
+							"preferred_locales": [],
+							"shipping": null,
+							"tax_exempt": "none"
+							}
+						```
+					</textarea>
+
+					<aside class="notes">
+						Nu geven endpoints direct values terug zonder een schema te definieeren. 
+						Dit kan er voor zorgen dat bij het updaten van de response van deze endpoint 
+						clients breken, of out-of-date raken.
+					</aside>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+						### Het probleem
+
+						- Clients breken zodra een endpoint wordt geupdatet
+						- Kan nooit een andere resource terug geven
+						- Er moeten nieuwe versies gemaakt worden van de client
+					</textarea>
+				</section>
+
+				<section>
+					Hoe maak je een api dat aanpasbaar is zonder dat clients breken?
+				</section>
+
+				<section>
+					
+				</section>
 			</div>
 		</div>
 
