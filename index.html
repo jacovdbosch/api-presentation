@@ -8,7 +8,7 @@
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+		<link rel="stylesheet" href="dist/theme/moon.css" id="theme">
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
@@ -29,6 +29,8 @@
 					- Alternatief API design
 				</section>
 
+
+
 				<section data-markdown>
 					### Typische Setup
 
@@ -37,6 +39,11 @@
 					- IOS
 					- Android
 					- Web
+
+					Notes:
+					Dit is een typische setup wat veel bedrijven gebruiken. Ze hebben 1 backend die de resources terug geeft, en
+					hebben clients gemaakt die de resources kunnen uitlezen en verbinden met interne objecten van de client 
+					programmeer taal.
 				</section>
 
 				<section data-markdown>
@@ -44,63 +51,61 @@
 				</section>
 
 				<section data-markdown>
-					<textarea data-template>
-						`GET /v1/customers/:id`
+					### Stripe API
 
-						```json
-						{
-							"id": "cus_IobtN8vgw2VPVc",
-							"object": "customer",
-							"address": null,
-							"balance": 0,
-							"created": 1611456600,
-							"currency": "usd",
-							"default_source": null,
-							"delinquent": false,
-							"description": null,
-							"discount": null,
-							"email": null,
-							"invoice_prefix": "2D6DEB6",
-							"invoice_settings": {
-								"custom_fields": null,
-								"default_payment_method": null,
-								"footer": null
-							},
-							"livemode": false,
-							"metadata": {},
-							"name": null,
-							"next_invoice_sequence": 1,
-							"phone": null,
-							"preferred_locales": [],
-							"shipping": null,
-							"tax_exempt": "none"
-							}
-						```
-					</textarea>
+					`GET /v1/customers/:id`
 
-					<aside class="notes">
-						Nu geven endpoints direct values terug zonder een schema te definieeren. 
-						Dit kan er voor zorgen dat bij het updaten van de response van deze endpoint 
-						clients breken, of out-of-date raken.
-					</aside>
+					```json
+					{
+						"id": "cus_IobtN8vgw2VPVc",
+						"object": "customer",
+						"address": null,
+						"balance": 0,
+						"created": 1611456600,
+						"currency": "usd",
+						"default_source": null,
+						"delinquent": false,
+						"description": null,
+						"discount": null,
+						"email": null,
+						"invoice_prefix": "2D6DEB6",
+						"livemode": false
+					}
+					```
+
+					Notes:
+					Nu geven endpoints direct values terug zonder een schema te definieeren. 
+					Dit kan er voor zorgen dat bij het updaten van de response van deze endpoint 
+					clients breken, of out-of-date raken.
 				</section>
 
 				<section data-markdown>
-					<textarea data-template>
-						### Het probleem
+					### Het probleem
 
-						- Clients breken zodra een endpoint wordt geupdatet
-						- Kan nooit een andere resource terug geven
-						- Er moeten nieuwe versies gemaakt worden van de client
-					</textarea>
+					- Clients breken zodra een endpoint wordt geupdatet
+					- Kan nooit een andere resource terug geven
+					- Er moeten nieuwe versies gemaakt worden van de client
 				</section>
 
-				<section>
-					Hoe maak je een api dat aanpasbaar is zonder dat clients breken?
+				<section data-markdown>
+					### Hoe pas je een api aan zonder dat clients breken?
 				</section>
 
-				<section>
+				<section data-markdown>
+					### Wat wordt er nu gebruikt
+
+					- Meerdere versies van responses: v1, v2, v3
+					- Meerdere versies van requests
 					
+					`GET /v1/customers/:id`
+
+					![Stripe API Version](stripe-api-version.png)
+				</section>
+
+				<section data-markdown>
+					### Fin
+
+					Nog vragen?
 				</section>
 			</div>
 		</div>
@@ -110,13 +115,10 @@
 		<script src="plugin/markdown/markdown.js"></script>
 		<script src="plugin/highlight/highlight.js"></script>
 		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
 			Reveal.initialize({
 				hash: true,
-
-				// Learn about plugins: https://revealjs.com/plugins/
+				slideNumber: true,
+				showNotes: false,
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
 			});
 		</script>
