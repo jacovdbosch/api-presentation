@@ -2,229 +2,314 @@
 <html>
 
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-	<title>Multi-Client API Design</title>
+  <title>Multi-Client API Design</title>
 
-	<link rel="stylesheet" href="dist/reset.css">
-	<link rel="stylesheet" href="dist/reveal.css">
-	<link rel="stylesheet" href="dist/theme/moon.css" id="theme">
+  <link rel="stylesheet" href="dist/reset.css">
+  <link rel="stylesheet" href="dist/reveal.css">
+  <link rel="stylesheet" href="dist/theme/moon.css" id="theme">
 
-	<!-- Theme used for syntax highlighted code -->
-	<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+  <style>
+    pre {
+      font-size: 12px;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .col {
+      flex: 1;
+    }
+  </style>
+
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
 </head>
 
 <body>
-	<div class="reveal">
-		<div class="slides">
-			<section data-markdown>
-				## Multi-Client API Design
-				Jaco van den Bosch
-			</section>
+  <div class="reveal">
+    <div class="slides">
+      <section data-markdown>
+        ## Multi-Client API Design
+        Jaco van den Bosch
+      </section>
 
-			<section data-markdown>
-				### Inhoud
+      <section data-markdown>
+        ### Inhoud
 
-				- Het probleem
-				- Wat er nu wordt gebruikt
-				- Alternatief API design
-			</section>
-
-
-
-			<section data-markdown>
-				### Typische Setup
-
-				1 Backend met REST API, meerdere clients
-
-				- IOS
-				- Android
-				- Web
-
-				Notes:
-				Dit is een typische setup wat veel bedrijven gebruiken. Ze hebben 1 backend die de resources terug
-				geeft, en
-				hebben clients gemaakt die de resources kunnen uitlezen en verbinden met interne objecten van de client
-				programmeer taal.
-			</section>
-
-			<section data-markdown>
-				<!-- Voeg een design toe van bijv 3 clients die communiceren met 1 server -->
-			</section>
-
-			<section data-markdown>
-				### Stripe API
-
-				`GET /v1/customers/:id`
-
-				```json
-				{
-					"id": "cus_IobtN8vgw2VPVc",
-					"object": "customer",
-					"address": null,
-					"balance": 0,
-					"created": 1611456600,
-					"currency": "usd",
-					"default_source": null,
-					"delinquent": false,
-					"description": null,
-					"discount": null,
-					"email": null,
-					"invoice_prefix": "2D6DEB6",
-					"livemode": false
-				}
-				```
-
-				Notes:
-				Nu geven endpoints direct values terug zonder een schema te definieeren.
-				Dit kan er voor zorgen dat bij het updaten van de response van deze endpoint
-				clients breken, of out-of-date raken.
-			</section>
-
-			<section data-markdown>
-				### Het probleem
-
-				- Clients breken zodra een endpoint wordt geupdatet
-				- Kan nooit een andere resource terug geven
-				- Er moeten nieuwe versies gemaakt worden van de client
-			</section>
-
-			<section data-markdown>
-				### Hoe pas je een api aan zonder dat clients breken?
-			</section>
-
-			<section data-markdown>
-				### Wat wordt er nu gebruikt
-
-				- Meerdere versies van responses: v1, v2, v3
-				- Meerdere versies van requests
-				- Externe documentatie beschrijft de api
-
-				`GET /v1/customers/:id`
-
-				![Stripe API Version](stripe-api-version.png)
-			</section>
-
-			<section data-markdown>
-				### Alternatief design
-
-				- Alle informatie die nodig is staat in de body van de request/response.
-				- Je weet pas wat de type is nadat de body is geparsed
-				- Linken naar andere resources
-				- Update/Create state aanpassingen
-			</section>
-
-			<section>
-				<pre><code data-trim>
-						{
-							"id": 1,
-							"groupId": 2
-						}
-				</code></pre>
-				
-				<pre class="fragment"><code data-trim>
-					{
-						"id": 1,
-						"groupId": { "href": "/groups/2" }
-					}
-				</code></pre>
+        - Het probleem
+        - Wat er nu wordt gebruikt
+        - Alternatief API design
+      </section>
 
 
-				<pre class="fragment"><code data-trim>
-					{
-						"id": 1,
-						"groups": { "href": "/groups", "rel": ["collection"] }
-					}
-				</code></pre>
-			</section>
 
-			<section>
-				<pre><code data-trim>
-					{
-						"application_name": "De Mantelzorger"
-					}
-				</code></pre>
+      <section data-markdown>
+        ### Typische Setup
 
-				<pre class="fragment"><code data-trim>
-					{
-						"application_name": { 
-							"value": "De Mantelzorger", 
-							"lang": "nl" 
-						}
-					}
+        1 Backend met REST API, meerdere clients
+
+        - IOS
+        - Android
+        - Web
+
+        Notes:
+        Dit is een typische setup wat veel bedrijven gebruiken. Ze hebben 1 backend die de resources terug
+        geeft, en
+        hebben clients gemaakt die de resources kunnen uitlezen en verbinden met interne objecten van de client
+        programmeer taal.
+      </section>
+
+      <section>
+        <!-- Voeg een design toe van bijv 3 clients die communiceren met 1 server -->
+      </section>
+
+      <section>
+        <h3>Voorbeeld GET /v1/user/:id</h3>
+
+        <pre><code data-trim>
+          {
+            "id": 12332,
+            "firstName": "John",
+            "lastName": "Doe",
+            "groups": [
+              { "id": 12, "name": "The Beastie Boys" },
+              { "id": 24, "name": "D12" },
+              { "id": 12, "name": "Pendulum" }
+            ],
+          }
+        </code></pre>
+      
+        <div class="fragment">
+          ⬇️
+          <pre><code data-trim data-noescape>
+            class User {
+              final int id;
+              final String firstName;
+              final String lastName;
+              final List<Group> groups;
+            
+              User(this.id, this.firstName, this.lastName, this.groups);
+            }
+
+            class Group {
+              final int id;
+              final String name;
+            
+              Group(this.id, this.name);
+            }
+          </code></pre>
+        </div>
+        
+
+        
+
+        <aside class="notes">
+
+          Deze setup brengt een aantal problemen met zich mee.
+
+          1. De endpoint wordt vaak 1-op-1 overgezet naar een object in de gekozen programmeer taal
+          2. Hierdoor wordt het lastig om iets anders te returnen in deze request.
+             Als voorbeeld: Misschien moet er eerst authenticatie gedaan worden 
+             voordat de gebruiker het op mag halen.
+
+        </aside>
+      </section>
+
+      <section data-markdown>
+        ### Het probleem
+
+
+        - Clients breken zodra een endpoint wordt geupdatet
+        - Kan nooit een andere resource terug geven
+        - Er moeten nieuwe versies gemaakt worden van de client
+      </section>
+
+      <section data-markdown>
+        ### Hoe pas je een api aan zonder dat clients breken?
+      </section>
+
+      <section data-markdown>
+        ### Wat wordt er nu gebruikt
+
+        - Meerdere versies van responses: v1, v2, v3
+        - Meerdere versies van requests
+        - Externe documentatie beschrijft de api
+
+        `GET /v1/customers/:id`
+
+        ![Stripe API Version](stripe-api-version.png)
+      </section>
+
+      <section data-markdown>
+        ### Alternatief design
+
+        - Alle informatie die nodig is staat in de body van de request/response.
+        - Je weet pas wat de type is nadat de body is geparsed
+        - Linken naar andere resources
+        - Update/Create state aanpassingen
+      </section>
+
+      <section>
+        <pre><code data-trim>
+          {
+            "id": 1,
+            "groupId": 2
+          }
 				</code></pre>
 
-				<pre class="fragment"><code data-trim>
-					{
-						"application_name": { 
-							"value": "The Caregiver", 
-							"lang": "en" 
-						}
-					}
+        <pre class="fragment"><code data-trim>
+          {
+            "id": 1,
+            "groupId": {
+              "href": "/groups/2"
+            }
+          }
 				</code></pre>
-			</section>
 
-			<section>
-				<h3>Hoe doe je Create/Update</h3>
 
-				<p class="fragment">Met Forms</p>
-			</section>
-
-			<section>
-				<h3>Voorbeeld Create Account</h3>
-				<pre><code data-trim data-line-numbers="6-14">
-					{
-						"application_name": { 
-							"value": "The Caregiver", 
-							"lang": "en" 
-						},
-						"create_account": {
-							"href": "https://example.org/users", 
-							"rel": ["create-form"], 
-							"method": "POST", 
-							"value": [
-								{ "name": "email", "required": true, "label": "E-mail adres" },
-								{ "name": "password", "required": true, "secret": true, "label": "Wachtwoord" },
-							]
-						}
-					}
+        <pre class="fragment"><code data-trim>
+          {
+            "id": 1,
+            "groups": {
+              "href": "/groups",
+              "rel": ["collection"]
+            }
+          }
 				</code></pre>
-			</section>
+      </section>
 
-			<section>
-				<h3>Meer informatie</h3>
+      <section>
+        <pre><code data-trim>
+          {
+            "application_name": "De Mantelzorger"
+          }
+				</code></pre>
 
-				<ul>
-					<li><a href="api-presentation.jacovdbosch.nl">https://api-presentation.jacovdbosch.nl</a></li>
-					<li><a href="https://www.youtube.com/watch?v=MiOSzpfP1Ww">https://www.youtube.com/watch?v=MiOSzpfP1Ww</a></li>
-					<li><a href="https://www.youtube.com/watch?v=P0a7PwRNLVU">https://www.youtube.com/watch?v=P0a7PwRNLVU</a></li>
-					<li><a href="https://ionspec.org/">https://ionspec.org/</a></li>
-					<li><a href="http://json-schema.org/">http://json-schema.org/</a></li>
-				</ul>
+        <pre class="fragment"><code data-trim>
+          {
+            "application_name": {
+              "value": "De Mantelzorger",
+              "lang": "nl"
+            }
+          }
+				</code></pre>
 
-			</section>
+        <pre class="fragment"><code data-trim>
+          {
+            "application_name": {
+              "value": "The Caregiver",
+              "lang": "en"
+            }
+          }
+				</code></pre>
+      </section>
 
-			<section data-markdown>
-				### Fin
+      <section>
+        <h3>Hoe doe je Create/Update</h3>
 
-				Nog vragen?
-			</section>
-		</div>
-	</div>
+        <p class="fragment">Met Forms</p>
+      </section>
 
-	<script src="dist/reveal.js"></script>
-	<script src="plugin/notes/notes.js"></script>
-	<script src="plugin/markdown/markdown.js"></script>
-	<script src="plugin/highlight/highlight.js"></script>
-	<script>
-		Reveal.initialize({
-			hash: true,
-			slideNumber: true,
-			showNotes: false,
-			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
-		});
-	</script>
+      <section>
+        <h3>Voorbeeld Create Account</h3>
+        <pre><code data-trim data-line-numbers="6-14">
+				  {
+            "application_name": {
+              "value": "The Caregiver",
+              "lang": "en"
+            },
+            "create_account": {
+              "href": "https://example.org/users",
+              "rel": [ "create-form" ],
+              "method": "POST",
+              "value": [
+                { "name": "email", "required": true, "label": "E-mail adres" },
+                { "name": "password", "required": true, "secret": true, "label": "Wachtwoord" }
+              ]
+            }
+          }
+				</code></pre>
+      </section>
+
+      <section>
+        <section>
+          <pre><code data-trim>
+            {
+              "create_agenda_time": {
+                "href": "https://example.org/agenda/",
+                "rel": [ "create-form" ],
+                "method": "POST",
+                "value": [
+                  {
+                    "name": "title",
+                    "required": true,
+                    "label": "Titel"
+                  },
+                  {
+                    "name": "type",
+                    "type": "set",
+                    "required": true,
+                    "label": "Type",
+                    "options": {
+                      "placeholder": "Kies een type",
+                      "value": [
+                        { "label": "Ziekenhuis", "value": "hospital" },
+                        { "label": "Apotheek", "value": "pharmacy" },
+                        { "label": "Taxirit", "value": "taxi" },
+                        { "label": "Fysiotherapie", "value": "physiotherapy" },
+                        { "label": "Huisarts", "value": "general_practitioner" }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+					</code></pre>
+        </section>
+        <section>
+          <img width="300" src="medicine_form.png" alt="Medicine Form">
+        </section>
+      </section>
+      
+      <section>
+        <h3>Meer informatie</h3>
+
+        <ul>
+          <li><a href="api-presentation.jacovdbosch.nl">https://api-presentation.jacovdbosch.nl</a></li>
+          <li><a href="https://www.youtube.com/watch?v=MiOSzpfP1Ww">https://www.youtube.com/watch?v=MiOSzpfP1Ww</a>
+          </li>
+          <li><a href="https://www.youtube.com/watch?v=P0a7PwRNLVU">https://www.youtube.com/watch?v=P0a7PwRNLVU</a>
+          </li>
+          <li><a href="https://ionspec.org/">https://ionspec.org/</a></li>
+          <li><a href="http://json-schema.org/">http://json-schema.org/</a></li>
+        </ul>
+
+      </section>
+
+      <section data-markdown>
+        ### Fin
+
+        Nog vragen?
+      </section>
+    </div>
+  </div>
+
+  <script src="dist/reveal.js"></script>
+  <script src="plugin/notes/notes.js"></script>
+  <script src="plugin/markdown/markdown.js"></script>
+  <script src="plugin/highlight/highlight.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: true,
+      showNotes: false,
+      plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+  </script>
 </body>
 
 </html>
