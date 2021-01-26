@@ -128,9 +128,10 @@
 
         <ul>
           <li>Backend beschrijft frontend</li>
-          <li>Informatie is beschikbaar in body van response</li>
-          <li>Linken naar resources</li>
-          <li>Beschrijving van Create/Update/Delete requests</li>
+          <li class="fragment">Geen harde koppeling tussen endpoint en code</li>
+          <li class="fragment">Informatie is beschikbaar in body van response</li>
+          <li class="fragment">Linken naar resources</li>
+          <li class="fragment">Beschrijving van Create/Update/Delete requests</li>
         </ul>
       </section>
 
@@ -282,14 +283,23 @@
           <img width="300" src="medicine_form.png" alt="Medicine Form">
         </section>
       </section>
+
+      <section>
+        <h3>Wat lost dit op?</h3>
+        <ul>
+          <li>Geeft de mogelijkheid om een andere response te geven dan de resource</li>
+          <li>Frontend hoeft minder vaak geupdate te worden</li>
+          <li>Minder documentatie nodig</li>
+        </ul>
+      </section>
       
       <section>
         <h3>Samenvatting</h3>
 
         <ul>
-          <li>Huidige API designs hebben problemen</li>
-          <li>Meer informatie in responses</li>
-          <li></li>
+          <li>Huidige API zorgen voor tightly coupled applicaties</li>
+          <li>Dynamischere API zorgt voor minder updates en meer mogelijkheden</li>
+          <li>Meer info in response zorgt voor minder docs</li>
         </ul>
       </section>
 
