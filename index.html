@@ -32,43 +32,35 @@
 <body>
   <div class="reveal">
     <div class="slides">
-      <section data-markdown>
-        ## Multi-Client API Design
-        Jaco van den Bosch
-      </section>
-
-      <section data-markdown>
-        ### Inhoud
-
-        - Het probleem
-        - Wat er nu wordt gebruikt
-        - Alternatief API design
-      </section>
-
-
-
-      <section data-markdown>
-        ### Typische Setup
-
-        1 Backend met REST API, meerdere clients
-
-        - IOS
-        - Android
-        - Web
-
-        Notes:
-        Dit is een typische setup wat veel bedrijven gebruiken. Ze hebben 1 backend die de resources terug
-        geeft, en
-        hebben clients gemaakt die de resources kunnen uitlezen en verbinden met interne objecten van de client
-        programmeer taal.
+      <section>
+        <h2>Aanpasbaar API Design</h2>
+        <p>Jaco van den Bosch</p>
       </section>
 
       <section>
-        <!-- Voeg een design toe van bijv 3 clients die communiceren met 1 server -->
+        <h3>Inhoud</h3>
+
+        <ul>
+          <li>REST API's</li>
+          <li>Problemen van huidige API's</li>
+          <li>Alternatief API Design</li>
+          <li>Samenvatting</li>
+        </ul>
       </section>
 
       <section>
-        <h3>Voorbeeld GET /v1/user/:id</h3>
+        <h3>REST API's</h3>
+
+        <ul>
+          <li>Representation State Transfer</li>
+          <li>Opgebouwd in resources</li>
+          <li>Server ⬅️➡️ Client</li>
+          <li>Android, IoS, Web, Desktop, Server</li>
+        </ul>
+      </section>
+
+      <section>
+        <p>GET /user/:id</p>
 
         <pre><code data-trim>
           {
@@ -78,7 +70,7 @@
             "groups": [
               { "id": 12, "name": "The Beastie Boys" },
               { "id": 24, "name": "D12" },
-              { "id": 12, "name": "Pendulum" }
+              { "id": 43, "name": "Pendulum" }
             ],
           }
         </code></pre>
@@ -103,81 +95,97 @@
             }
           </code></pre>
         </div>
-        
-
-        
-
-        <aside class="notes">
-
-          Deze setup brengt een aantal problemen met zich mee.
-
-          1. De endpoint wordt vaak 1-op-1 overgezet naar een object in de gekozen programmeer taal
-          2. Hierdoor wordt het lastig om iets anders te returnen in deze request.
-             Als voorbeeld: Misschien moet er eerst authenticatie gedaan worden 
-             voordat de gebruiker het op mag halen.
-
-        </aside>
       </section>
 
-      <section data-markdown>
-        ### Het probleem
+      <section>
+        <h3>Problemen met dit design</h3>
 
-
-        - Clients breken zodra een endpoint wordt geupdatet
-        - Kan nooit een andere resource terug geven
-        - Er moeten nieuwe versies gemaakt worden van de client
+        <ul>
+          <li>Front-ends breken door tight-coupling</li>
+          <li>Kan nooit een andere resource terug geven</li>
+          <li>Front-ends moeten mogelijk geupdate worden</li>
+          <li>Documentatie van endpoints moet worden bijgehouden</li>
+        </ul>
       </section>
 
-      <section data-markdown>
-        ### Hoe pas je een api aan zonder dat clients breken?
+      <section>
+        <h3 class="r-fit-text">Hoe pas je een api aan zonder dat de front-end breekt?</h3>
       </section>
 
-      <section data-markdown>
-        ### Wat wordt er nu gebruikt
+      <section>
+        <h3>Technieken die nu worden toegepast</h3>
 
-        - Meerdere versies van responses: v1, v2, v3
-        - Meerdere versies van requests
-        - Externe documentatie beschrijft de api
-
-        `GET /v1/customers/:id`
-
-        ![Stripe API Version](stripe-api-version.png)
+        <ul>
+          <li>Meerdere versies van apis.</li>
+          <li class="fragment">GET /user/:id ➡️ GET /v1/user/:id</li>
+          <li class="fragment">Documentatie van alle endpoints</li>
+          <li class="fragment">Wordt nu automatisch gegenereerd door d.m.v. OpenAPI</li>
+        </ul>
       </section>
 
-      <section data-markdown>
-        ### Alternatief design
+      <section>
+        <h3>Alternatief aanpasbaar design</h3>
 
-        - Alle informatie die nodig is staat in de body van de request/response.
-        - Je weet pas wat de type is nadat de body is geparsed
-        - Linken naar andere resources
-        - Update/Create state aanpassingen
+        <ul>
+          <li>Backend beschrijft frontend</li>
+          <li>Informatie is beschikbaar in body van response</li>
+          <li>Linken naar resources</li>
+          <li>Beschrijving van Create/Update/Delete requests</li>
+        </ul>
       </section>
 
       <section>
         <pre><code data-trim>
           {
-            "id": 1,
-            "groupId": 2
+            "id": 12332,
+            "firstName": "John",
+            "lastName": "Doe",
+            "groups": [
+              { "id": 12, "name": "The Beastie Boys" },
+              { "id": 24, "name": "D12" },
+              { "id": 43, "name": "Pendulum" }
+            ],
           }
 				</code></pre>
 
         <pre class="fragment"><code data-trim>
           {
-            "id": 1,
-            "groupId": {
-              "href": "/groups/2"
-            }
-          }
-				</code></pre>
-
-
-        <pre class="fragment"><code data-trim>
-          {
-            "id": 1,
+            "self": { "href": "/users/12332" },
+            "id": 12332,
+            "firstName": "John",
+            "lastName": "Doe",
             "groups": {
-              "href": "/groups",
+              "href": "/user/12332/groups",
               "rel": ["collection"]
-            }
+            },
+          }
+				</code></pre>
+
+
+        <pre class="fragment"><code data-trim>
+          {
+            // Metadata...
+            "rel": ["collection"],
+            "values": [
+              { "id": 12, "name": "The Beastie Boys", "self": "/groups/12" },
+              { "id": 24, "name": "D12", "self": "/groups/24" },
+              { "id": 43, "name": "Pendulum", "self": "/groups/43" }
+            ],
+          }
+        </code></pre>
+        
+        <pre class="fragment"><code data-trim>
+          {
+            // User data...
+            "groups": {
+              "href": "/user/12332/groups",
+              "rel": ["collection"],
+              "values": [
+                { "id": 12, "name": "The Beastie Boys", "self": "/groups/12" },
+                { "id": 24, "name": "D12", "self": "/groups/24" },
+                { "id": 43, "name": "Pendulum", "self": "/groups/43" }
+              ]
+            },
           }
 				</code></pre>
       </section>
@@ -276,16 +284,34 @@
       </section>
       
       <section>
+        <h3>Samenvatting</h3>
+
+        <ul>
+          <li>Huidige API designs hebben problemen</li>
+          <li>Meer informatie in responses</li>
+          <li></li>
+        </ul>
+      </section>
+
+      <section>
         <h3>Meer informatie</h3>
 
         <ul>
-          <li><a href="api-presentation.jacovdbosch.nl">https://api-presentation.jacovdbosch.nl</a></li>
-          <li><a href="https://www.youtube.com/watch?v=MiOSzpfP1Ww">https://www.youtube.com/watch?v=MiOSzpfP1Ww</a>
+          <li>
+            <a href="https://api-presentation.jacovdbosch.nl">https://api-presentation.jacovdbosch.nl</a>
           </li>
-          <li><a href="https://www.youtube.com/watch?v=P0a7PwRNLVU">https://www.youtube.com/watch?v=P0a7PwRNLVU</a>
+          <li>
+            <a href="https://www.youtube.com/watch?v=MiOSzpfP1Ww">https://www.youtube.com/watch?v=MiOSzpfP1Ww</a>
           </li>
-          <li><a href="https://ionspec.org/">https://ionspec.org/</a></li>
-          <li><a href="http://json-schema.org/">http://json-schema.org/</a></li>
+          <li>
+            <a href="https://www.youtube.com/watch?v=P0a7PwRNLVU">https://www.youtube.com/watch?v=P0a7PwRNLVU</a>
+          </li>
+          <li>
+            <a href="https://ionspec.org/">https://ionspec.org/</a>
+          </li>
+          <li>
+            <a href="https://json-schema.org/">https://json-schema.org/</a>
+          </li>
         </ul>
 
       </section>
