@@ -12,10 +12,6 @@
   <link rel="stylesheet" href="dist/theme/moon.css" id="theme">
 
   <style>
-    pre {
-      font-size: 12px;
-    }
-
     .container {
       display: flex;
     }
@@ -60,10 +56,9 @@
       </section>
 
       <section>
-        <p>GET /user/:id</p>
-
         <pre><code data-trim>
           {
+            // GET /user/12332
             "id": 12332,
             "firstName": "John",
             "lastName": "Doe",
@@ -138,6 +133,7 @@
       <section>
         <pre><code data-trim>
           {
+            // GET /user/12332
             "id": 12332,
             "firstName": "John",
             "lastName": "Doe",
@@ -151,6 +147,7 @@
 
         <pre class="fragment"><code data-trim>
           {
+            // GET /user/12332
             "self": { "href": "/users/12332" },
             "id": 12332,
             "firstName": "John",
@@ -165,7 +162,7 @@
 
         <pre class="fragment"><code data-trim>
           {
-            // Metadata...
+            // GET /user/12332/groups
             "rel": ["collection"],
             "values": [
               { "id": 12, "name": "The Beastie Boys", "self": "/groups/12" },
@@ -177,7 +174,7 @@
         
         <pre class="fragment"><code data-trim>
           {
-            // User data...
+            // GET /user/12332
             "groups": {
               "href": "/user/12332/groups",
               "rel": ["collection"],
